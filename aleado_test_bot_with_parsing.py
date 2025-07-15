@@ -14,7 +14,7 @@ import requests
 from datetime import datetime
 
 load_dotenv("1.env")
-API_TOKEN = os.getenv("BOT_TOKEN")
+API_TOKEN = os.getenv("API_TOKEN")
 PHPSESSID = os.getenv("PHPSESSID")
 
 logging.basicConfig(level=logging.INFO)
