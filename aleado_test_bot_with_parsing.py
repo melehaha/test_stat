@@ -77,12 +77,7 @@ async def car_year_to_received(message: Message, state: FSMContext):
     year_to = data['year_to']
 
     await message.answer(
-        f"<b>🔍 Поиск:</b>
-Марка: {make}
-Модель: {model}
-Год: {year_from}–{year_to}
-
-Парсим Aleado..."
+        f"<b>🔍 Поиск:</b>\nМарка: {make}\nМодель: {model}\nГод: {year_from}–{year_to}\n\nПарсим Aleado..."
     )
 
     results, avg_price = fake_parse_aleado_stats(make, model, year_from, year_to)
