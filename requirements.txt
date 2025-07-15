@@ -1,4 +1,6 @@
 aiogram==3.4.1
+aiohttp
 requests
 beautifulsoup4
+lxml
 python-dotenv
