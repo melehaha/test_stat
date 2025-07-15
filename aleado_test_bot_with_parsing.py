@@ -39,8 +39,7 @@ def fetch_makes_from_aleado():
     makes = {}
     for option in select.find_all("option"):
         val = option.get("value")
-        name = option.text.strip().split("
-")[0]
+        name = option.text.strip().split("\n")[0]
         if val and val.isdigit():
             makes[name.upper()] = val
     return makes
@@ -54,8 +53,7 @@ def fetch_models_by_make(make_id):
     if select:
         for option in select.find_all("option"):
             val = option.get("value")
-            name = option.text.strip().split("
-")[0]
+            name = option.text.strip().split("\n")[0]
             if val and val.isdigit():
                 models[name.upper()] = val
     return models
