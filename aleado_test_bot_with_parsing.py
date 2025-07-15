@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
-PHPSESSID = os.getenv("ALEADO_PHPSESSID")
+API_TOKEN = os.getenv("8130338207:AAE-a-t1HKjKDxxu9xmUG98-nfYulRVCDcU")
+PHPSESSID = os.getenv("rljv1fddgetonpedep92dpjtnh")
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
