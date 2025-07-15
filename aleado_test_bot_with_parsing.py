@@ -82,13 +82,10 @@ async def car_year_to_received(message: Message, state: FSMContext):
 
     results, avg_price = fake_parse_aleado_stats(make, model, year_from, year_to)
 
-    text = f"<b>📊 Последние продажи:</b>
-"
+    text = "<b>📊 Последние продажи:</b>\n\n"
     for r in results:
-        text += f"{r['дата']}: оценка {r['оценка']}, цена {r['цена']:,} ¥
-"
-    text += f"
-<b>Средняя цена:</b> {avg_price:,} ¥"
+        text += f"{r['дата']}: оценка {r['оценка']}, цена {r['цена']:,} ¥\n"
+    text += f"\n<b>Средняя цена:</b> {avg_price:,} ¥"
 
     await message.answer(text)
 
