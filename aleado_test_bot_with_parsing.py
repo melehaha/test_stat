@@ -81,7 +81,9 @@ def fetch_stats(make_id, model_id, year_from, year_to):
     return "не найдена"
 
 
-@dp.message(commands=["start"])
+from aiogram.filters import Command
+
+@dp.message(Command("start"))
 async def send_welcome(message: types.Message):
     await message.answer("Привет! Введи марку и модель, например:\n\n<b>Honda Civic</b>")
 
