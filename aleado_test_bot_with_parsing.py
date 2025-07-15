@@ -83,9 +83,7 @@ def fetch_stats(make_id, model_id, year_from, year_to):
 
 @dp.message(commands=["start"])
 async def send_welcome(message: types.Message):
-    await message.answer("Привет! Введи марку и модель, например:
-
-<b>Honda Civic</b>")
+    await message.answer("Привет! Введи марку и модель, например:\n\n<b>Honda Civic</b>")
 
 
 @dp.message()
