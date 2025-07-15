@@ -1,29 +1,33 @@
 
+import os
 import logging
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import asyncio
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
 from dotenv import load_dotenv
-import os
+from aiogram import Bot, Dispatcher, types
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 
-load_dotenv()
-API_TOKEN = os.getenv("8130338207:AAE-a-t1HKjKDxxu9xmUG98-nfYulRVCDcU")
-PHPSESSID = os.getenv("rljv1fddgetonpedep92dpjtnh")
+load_dotenv("1.env")
+API_TOKEN = os.getenv("API_TOKEN")
+PHPSESSID = os.getenv("PHPSESSID")
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+
+bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher()
 
 session = requests.Session()
 session.cookies.set("PHPSESSID", PHPSESSID)
+
 
 def fetch_makes_from_aleado(session):
     url = "https://auctions.aleado.ru/stats/?p=project/searchform&searchtype=max"
     response = session.get(url)
     soup = BeautifulSoup(response.text, 'lxml')
-
     select = soup.find("select", {"name": "mrk"})
     makes = {}
     if not select:
@@ -35,15 +39,14 @@ def fetch_makes_from_aleado(session):
             makes[text.upper()] = value
     return makes
 
+
 def fetch_models_by_make(session, make_id):
     url = "https://auctions.aleado.ru/stats/?p=project/getmodels"
     response = session.post(url, data={'mrk': make_id})
     soup = BeautifulSoup(response.text, 'lxml')
-
     select = soup.find('select', {'name': 'mdl'})
     if not select:
         return {}
-
     options = select.find_all('option')
     models = {}
     for option in options:
@@ -52,6 +55,7 @@ def fetch_models_by_make(session, make_id):
         if value and value.isdigit():
             models[text.upper()] = value
     return models
+
 
 def fetch_stats(make_id, model_id, year_from, year_to):
     url = "https://auctions.aleado.ru/stats/?p=project/findlots&s&ld"
@@ -76,37 +80,45 @@ def fetch_stats(make_id, model_id, year_from, year_to):
         return average_price.next_sibling.strip()
     return "не найдена"
 
-@dp.message_handler(commands=['start'])
-async def send_welcome(message: types.Message):
-    await message.reply("Привет! Введи марку и модель, например: \n\n`Honda Civic`", parse_mode="Markdown")
 
-@dp.message_handler()
+@dp.message(commands=["start"])
+async def send_welcome(message: types.Message):
+    await message.answer("Привет! Введи марку и модель, например:
+
+<b>Honda Civic</b>")
+
+
+@dp.message()
 async def handle_query(message: types.Message):
     try:
         parts = message.text.upper().split()
         if len(parts) < 2:
-            await message.reply("Введите и марку, и модель. Например: `Honda Fit`", parse_mode="Markdown")
+            await message.answer("Введите и марку, и модель. Например: <b>Honda Fit</b>")
             return
 
         brand, model = parts[0], " ".join(parts[1:])
         makes = fetch_makes_from_aleado(session)
         make_id = makes.get(brand)
         if not make_id:
-            await message.reply(f"Марка {brand} не найдена.")
+            await message.answer(f"Марка <b>{brand}</b> не найдена.")
             return
 
         models = fetch_models_by_make(session, make_id)
         model_id = models.get(model)
         if not model_id:
-            await message.reply(f"Модель {model} не найдена.")
+            await message.answer(f"Модель <b>{model}</b> не найдена.")
             return
 
-        await message.reply("Считаю среднюю цену, подожди...")
+        await message.answer("Считаю среднюю цену, подожди...")
         avg_price = fetch_stats(make_id, model_id, 2021, 2023)
-        await message.reply(f"Средняя цена на {brand} {model} (2021–2023): {avg_price}")
+        await message.answer(f"Средняя цена на <b>{brand} {model}</b> (2021–2023): <b>{avg_price}</b>")
     except Exception as e:
         logging.exception("Ошибка при обработке запроса")
-        await message.reply("Произошла ошибка. Попробуй еще раз.")
+        await message.answer("Произошла ошибка. Попробуй еще раз.")
 
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
